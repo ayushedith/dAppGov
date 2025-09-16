@@ -1,4 +1,4 @@
-# dAppGov — Decentralized Governance dApp
+# dAppGov - Decentralized Governance dApp
 
 A lightweight, static front-end for a blockchain governance dApp. This repository currently contains a single-page app (`index.html`) that can be opened directly in a browser or served via a simple local web server.
 
