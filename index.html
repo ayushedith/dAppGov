@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roadmap: Decentralized & Transparent Governance</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals (Stone, Slate) with Amber Accent -->
+    <!-- Application Structure Plan: A single-page, narrative-driven application designed for progressive disclosure. The structure follows a logical flow from high-level vision to detailed implementation steps. A sticky top navigation allows users to jump to specific sections (Vision, Roadmap, Tech, Cases, Challenges, Tools), making exploration intuitive. The core is the interactive roadmap, where clicking on a phase reveals detailed objectives and actions. This task-oriented approach breaks down a complex subject into manageable parts, guiding the user from 'what' and 'why' to 'how'. A new "Policy & Communication Toolkit" section uses a Gemini API integration to allow for document generation, turning the app from a passive reference into an active strategic tool. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Key Principles of Transparent Governance -> Goal: Inform -> Viz: Donut Chart -> Interaction: Hover for tooltips -> Justification: Shows the interconnected components of the core vision in an easily digestible format -> Library: Chart.js/Canvas.
+        - Report Info: Implementation Roadmap Phases -> Goal: Organize/Change -> Viz: Interactive HTML/CSS Timeline -> Interaction: Click to expand/collapse phase details -> Justification: Provides a clear, step-by-step view of the long-term plan, allowing users to control the level of detail they see -> Library/Method: Vanilla JS + Tailwind CSS.
+        - Report Info: Core Enabling Technologies -> Goal: Inform/Organize -> Viz: Interactive Cards -> Interaction: Click to reveal details about each technology -> Justification: Allows for focused learning on complex topics like Blockchain and AI without overwhelming the user initially -> Library/Method: Vanilla JS + Tailwind CSS.
+        - Report Info: Key Implementation Challenges -> Goal: Inform/Compare -> Viz: Polar Area Chart -> Interaction: Hover for tooltips showing challenge details -> Justification: Visually represents the magnitude and multi-faceted nature of challenges, more engaging than a simple list -> Library: Chart.js/Canvas.
+        - Report Info: Global Case Studies -> Goal: Inform/Compare -> Viz: Card layout -> Interaction: Static display with key takeaways -> Justification: Provides concise, real-world validation for the proposed concepts -> Library/Method: HTML + Tailwind CSS.
+        - Report Info: Document Generation -> Goal: Create/Strategize -> Viz: Interactive text input and output area -> Interaction: Text input, button click to trigger LLM API call -> Justification: Provides a practical, real-world application of AI for the user's specific goal, making the app a utility rather than just an information source -> Library/Method: Gemini API via fetch() + Vanilla JS + Tailwind CSS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .nav-link.active {
+            color: #d97706; /* amber-600 */
+            border-bottom-color: #d97706; /* amber-600 */
+        }
+        .phase-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .details-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.7s ease-in-out;
+        }
+        .details-content.open {
+            max-height: 1000px;
+        }
+        .tech-card.active {
+            border-color: #d97706; /* amber-600 */
+            background-color: #fef3c7; /* amber-100 */
+        }
+        .loading-spinner {
+            border-top-color: #d97706;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @-webkit-keyframes spinner {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-slate-900">Gov-Transparent</h1>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#vision" class="nav-link text-slate-600 hover:text-amber-600 border-b-2 border-transparent pb-1">The Vision</a>
+                <a href="#roadmap" class="nav-link text-slate-600 hover:text-amber-600 border-b-2 border-transparent pb-1">Roadmap</a>
+                <a href="#tech" class="nav-link text-slate-600 hover:text-amber-600 border-b-2 border-transparent pb-1">Technologies</a>
+                <a href="#cases" class="nav-link text-slate-600 hover:text-amber-600 border-b-2 border-transparent pb-1">Case Studies</a>
+                <a href="#tools" class="nav-link text-slate-600 hover:text-amber-600 border-b-2 border-transparent pb-1">Tools</a>
+                <a href="#challenges" class="nav-link text-slate-600 hover:text-amber-600 border-b-2 border-transparent pb-1">Challenges</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+
+        <section id="vision" class="text-center mb-24 scroll-mt-20">
+            <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Building a Government for the People, by the People</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600 mb-12">This roadmap outlines a strategic transition towards a decentralized, transparent, and highly efficient digital governance model. By leveraging cutting-edge technology, we can foster unprecedented public trust, empower citizens, and deliver seamless civic services for a stronger nation.</p>
+            <div class="chart-container">
+                <canvas id="visionChart"></canvas>
+            </div>
+            <p class="text-sm text-slate-500 mt-4">The core principles for building public trust through technology.</p>
+        </section>
+
+        <section id="roadmap" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">The Implementation Roadmap</h2>
+                <p class="max-w-2xl mx-auto text-md text-slate-600 mt-2">A phased approach to ensure a stable, scalable, and successful national transformation. Click on each phase to explore the detailed objectives and key actions.</p>
+            </div>
+            <div class="relative border-l-2 border-stone-300 ml-6 md:ml-0 md:border-l-0 md:border-t-2 md:w-full md:flex">
+                <div id="phase-container" class="space-y-16 md:space-y-0 md:flex md:w-full md:justify-around">
+                </div>
+            </div>
+        </section>
+
+        <section id="tech" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">Core Enabling Technologies</h2>
+                <p class="max-w-2xl mx-auto text-md text-slate-600 mt-2">Understanding the technological pillars that make this vision possible. Select a technology to learn about its role in decentralized governance.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div class="md:col-span-4">
+                    <div id="tech-selector" class="space-y-4">
+                    </div>
+                </div>
+                <div class="md:col-span-8 bg-white p-8 rounded-lg shadow-sm">
+                    <div id="tech-details">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cases" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">Global Success Stories</h2>
+                <p class="max-w-2xl mx-auto text-md text-slate-600 mt-2">Learning from international pioneers in digital and decentralized governance.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-amber-500">
+                    <h3 class="font-bold text-xl mb-2">Estonia: The Digital Society</h3>
+                    <p class="text-slate-600">The world's first country to use blockchain on a national level. Their "e-Estonia" initiative offers digital identity, e-voting, and secure data exchange (X-Road), ensuring 99% of government services are online, saving over 2% of GDP annually in costs and time.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-amber-500">
+                    <h3 class="font-bold text-xl mb-2">Georgia: Land Registry on Blockchain</h3>
+                    <p class="text-slate-600">In collaboration with Bitfury, Georgia implemented a blockchain-based land registry system. This has drastically reduced fraud, cut processing times from days to minutes, and increased public trust in property rights, a critical factor for economic development.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-amber-500">
+                    <h3 class="font-bold text-xl mb-2">India: Aadhaar & UPI</h3>
+                    <p class="text-slate-600">While not fully decentralized, Aadhaar provides a foundational digital identity for over a billion people. Combined with the Unified Payments Interface (UPI), it has enabled massive financial inclusion and direct benefit transfers, demonstrating the power of foundational digital public infrastructure.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tools" class="mb-24 scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">Policy & Communication Toolkit</h2>
+                <p class="max-w-2xl mx-auto text-md text-slate-600 mt-2">Use the power of AI to draft key documents for your initiative. Enter a topic below and choose your document type.</p>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-sm max-w-4xl mx-auto">
+                <div class="mb-6">
+                    <label for="topic-input" class="block text-sm font-medium text-slate-700 mb-2">Topic for your document:</label>
+                    <input type="text" id="topic-input" placeholder="e.g., The importance of digital identity" class="w-full p-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                </div>
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <button id="brief-btn" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 shadow-lg">✨ Draft a Policy Brief</button>
+                    <button id="speech-btn" class="flex-1 bg-slate-700 hover:bg-slate-800 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 shadow-lg">✨ Generate a Speech</button>
+                </div>
+                <div id="loading" class="hidden flex justify-center items-center py-4">
+                    <div class="loading-spinner w-8 h-8 border-4 rounded-full"></div>
+                    <span class="ml-4 text-slate-500">Generating content...</span>
+                </div>
+                <div id="error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mt-4">
+                    <strong class="font-bold">Error:</strong>
+                    <span id="error-text" class="block sm:inline ml-2"></span>
+                </div>
+                <div id="output" class="bg-stone-100 p-6 rounded-lg text-slate-700 text-sm whitespace-pre-wrap">
+                    Your generated document will appear here.
+                </div>
+            </div>
+        </section>
+
+        <section id="challenges" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900">Overcoming the Challenges</h2>
+                <p class="max-w-2xl mx-auto text-md text-slate-600 mt-2">A realistic view of the hurdles we must address for successful implementation. Each axis on the chart represents a key challenge area.</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="challengesChart"></canvas>
+            </div>
+            <p class="text-sm text-slate-500 mt-4 text-center">A visual representation of key challenge areas and their relative importance.</p>
+        </section>
+
+    </main>
+    
+    <footer class="bg-slate-800 text-stone-300 mt-24">
+        <div class="container mx-auto px-6 py-8 text-center">
+            <p>This roadmap is a living document, designed to guide a nation's journey towards a more open, efficient, and trustworthy future.</p>
+            <p class="text-sm mt-2 text-stone-400">Gov-Transparent Initiative</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const roadmapData = [
+        {
+            phase: 1,
+            title: "Foundation & Strategy",
+            duration: "Year 1-2",
+            icon: "1",
+            details: `
+                <h4 class="font-semibold text-lg mb-2 text-slate-800">Objectives:</h4>
+                <p class="mb-4 text-slate-600">To establish the legal, strategic, and human resource foundation for a national digital transformation. The goal is to create a clear vision and ensure alignment across all government bodies.</p>
+                <h4 class="font-semibold text-lg mb-2 text-slate-800">Key Actions:</h4>
+                <ul class="list-disc list-inside space-y-2 text-slate-600">
+                    <li><strong>Establish National Digital Council:</strong> Form a cross-departmental body to oversee the entire transformation.</li>
+                    <li><strong>Develop Legal Frameworks:</strong> Draft and pass legislation on data privacy, digital signatures, and electronic transactions.</li>
+                    <li><strong>Conduct Nationwide Digital Audit:</strong> Assess current infrastructure, digital literacy rates, and departmental capabilities.</li>
+                    <li><strong>Public Awareness Campaign:</strong> Launch a campaign to educate citizens on the benefits and vision of digital governance.</li>
+                </ul>
+            `
+        },
+        {
+            phase: 2,
+            title: "Pilots & Infrastructure",
+            duration: "Year 2-4",
+            icon: "2",
+            details: `
+                <h4 class="font-semibold text-lg mb-2 text-slate-800">Objectives:</h4>
+                <p class="mb-4 text-slate-600">To build foundational technology and test decentralized services in controlled, high-impact areas. The focus is on learning, iterating, and demonstrating tangible value to the public.</p>
+                <h4 class="font-semibold text-lg mb-2 text-slate-800">Key Actions:</h4>
+                <ul class="list-disc list-inside space-y-2 text-slate-600">
+                    <li><strong>Develop Digital Identity System:</strong> Create a secure, self-sovereign digital ID for all citizens, serving as the cornerstone for all services.</li>
+                    <li><strong>Launch Pilot Projects:</strong> Implement blockchain-based pilots for Land Registry and Educational Certificate verification.</li>
+                    <li><strong>Build Secure Data Exchange Layer:</strong> Develop a national, secure interoperability platform (like Estonia's X-Road) for seamless data sharing between departments.</li>
+                    <li><strong>Invest in Cloud Infrastructure:</strong> Scale up secure, sovereign cloud infrastructure to support new digital services.</li>
+                </ul>
+            `
+        },
+        {
+            phase: 3,
+            title: "Scaling & Integration",
+            duration: "Year 4-7",
+            icon: "3",
+            details: `
+                <h4 class="font-semibold text-lg mb-2 text-slate-800">Objectives:</h4>
+                <p class="mb-4 text-slate-600">To expand successful pilot programs nationwide, integrate various services into a unified platform, and drive mass citizen adoption through education and user-friendly design.</p>
+                <h4 class="font-semibold text-lg mb-2 text-slate-800">Key Actions:</h4>
+                <ul class="list-disc list-inside space-y-2 text-slate-600">
+                    <li><strong>Nationwide Rollout of Pilots:</strong> Scale the land registry and certificate systems across all states/provinces.</li>
+                    <li><strong>Introduce E-Voting Pilots:</strong> Conduct limited, secure e-voting pilots for local elections to build trust and test systems.</li>
+                    <li><strong>Develop Unified Citizen Portal:</strong> Create a single-window mobile app and web portal for accessing all government services.</li>
+                    <li><strong>Launch Digital Literacy Programs:</strong> Partner with schools and community centers to provide nationwide IT education.</li>
+                </ul>
+            `
+        },
+        {
+            phase: 4,
+            title: "Optimization & Autonomy",
+            duration: "Year 7+",
+            icon: "4",
+            details: `
+                <h4 class="font-semibold text-lg mb-2 text-slate-800">Objectives:</h4>
+                <p class="mb-4 text-slate-600">To shift towards a fully mature, data-driven, and citizen-centric governance model. The focus is on continuous improvement, predictive services, and empowering citizens with control over their data.</p>
+                <h4 class="font-semibold text-lg mb-2 text-slate-800">Key Actions:</h4>
+                <ul class="list-disc list-inside space-y-2 text-slate-600">
+                    <li><strong>Implement AI for Public Service:</strong> Use AI for traffic management, resource allocation, and predictive analytics in healthcare.</li>
+                    <li><strong>Launch Open Data Initiatives:</strong> Make anonymized government data public for innovation in the private and academic sectors.</li>
+                    <li><strong>Decentralize Data Control:</strong> Empower citizens with personal data dashboards to control who can access their information and for what purpose.</li>
+                    <li><strong>Establish Participatory Budgeting Platforms:</strong> Allow citizens to propose and vote on local community projects through the digital platform.</li>
+                </ul>
+            `
+        }
+    ];
+
+    const techData = {
+        blockchain: {
+            title: "Blockchain Technology",
+            description: "A distributed, immutable ledger that provides the foundation for trust and transparency. Every transaction (like a property sale or a vote) is recorded in a block and linked cryptographically to the previous one, making it virtually impossible to alter records without detection. This is the core technology for eliminating fraud and ensuring data integrity.",
+            application: "Land registries, voting systems, supply chain management, and securing digital identities."
+        },
+        ai: {
+            title: "Artificial Intelligence & Machine Learning",
+            description: "AI and ML can analyze vast amounts of data to optimize government operations, predict citizen needs, and automate routine tasks. From managing city traffic flows to identifying patterns in public health data, AI can make government services more efficient, proactive, and responsive.",
+            application: "Optimizing public transport, predictive healthcare, automated citizen support, and efficient resource allocation."
+        },
+        ssi: {
+            title: "Self-Sovereign Identity (SSI)",
+            description: "SSI is a model for digital identity that gives individuals full control over their personal data. Instead of relying on a central authority, citizens hold their own identity information in a secure digital wallet and can choose to share specific, verifiable credentials (like age or qualifications) without revealing unnecessary personal details.",
+            application: "The core of a secure and private national digital ID, enabling access to all services without compromising privacy."
+        },
+        openData: {
+            title: "Open Data & APIs",
+            description: "This involves making non-sensitive government data accessible to the public in a machine-readable format through Application Programming Interfaces (APIs). This transparency allows citizens, journalists, and private companies to analyze government performance, build new applications, and foster innovation that benefits society.",
+            application: "Public budget tracking, transport data for navigation apps, and economic data for researchers."
+        }
+    };
+
+    const phaseContainer = document.getElementById('phase-container');
+    roadmapData.forEach(phase => {
+        const phaseElement = document.createElement('div');
+        phaseElement.className = 'md:relative md:flex-1';
+        phaseElement.innerHTML = `
+            <div class="md:absolute md:left-1/2 md:-translate-x-1/2 md:-top-3.5">
+                <span class="flex items-center justify-center w-12 h-12 bg-amber-500 rounded-full text-white font-bold text-xl ring-8 ring-white">${phase.icon}</span>
+            </div>
+            <div data-phase="${phase.phase}" class="ml-12 md:ml-0 md:pt-16 cursor-pointer bg-white p-6 rounded-lg shadow-md phase-card">
+                <p class="text-sm text-slate-500">${phase.duration}</p>
+                <h3 class="font-bold text-xl text-slate-900 mb-2">${phase.title}</h3>
+                <div class="details-content">
+                    ${phase.details}
+                </div>
+            </div>
+        `;
+        phaseContainer.appendChild(phaseElement);
+    });
+
+    phaseContainer.addEventListener('click', (e) => {
+        const card = e.target.closest('.phase-card');
+        if (card) {
+            const details = card.querySelector('.details-content');
+            details.classList.toggle('open');
+        }
+    });
+
+    const techSelector = document.getElementById('tech-selector');
+    const techDetailsContainer = document.getElementById('tech-details');
+    
+    Object.keys(techData).forEach(key => {
+        const data = techData[key];
+        const button = document.createElement('button');
+        button.className = 'w-full text-left p-4 rounded-lg border-2 border-transparent tech-card bg-white shadow-sm';
+        button.dataset.tech = key;
+        button.innerHTML = `<h4 class="font-semibold text-lg text-slate-800">${data.title}</h4>`;
+        techSelector.appendChild(button);
+    });
+    
+    function updateTechDetails(techKey) {
+        const data = techData[techKey];
+        if (!data) return;
+
+        techDetailsContainer.innerHTML = `
+            <h3 class="text-2xl font-bold text-slate-900 mb-4">${data.title}</h3>
+            <p class="text-slate-600 mb-4">${data.description}</p>
+            <p><strong class="text-slate-700">Primary Applications:</strong> <span class="text-slate-600">${data.application}</span></p>
+        `;
+        
+        document.querySelectorAll('.tech-card').forEach(card => {
+            card.classList.toggle('active', card.dataset.tech === techKey);
+        });
+    }
+
+    techSelector.addEventListener('click', (e) => {
+        const card = e.target.closest('.tech-card');
+        if (card && card.dataset.tech) {
+            updateTechDetails(card.dataset.tech);
+        }
+    });
+
+    updateTechDetails('blockchain');
+
+    const visionCtx = document.getElementById('visionChart').getContext('2d');
+    new Chart(visionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Transparency', 'Efficiency', 'Citizen Empowerment', 'Security', 'Accountability'],
+            datasets: [{
+                label: 'Pillars of Trust',
+                data: [25, 20, 20, 20, 15],
+                backgroundColor: ['#f59e0b', '#fbbf24', '#fcd34d', '#fde68a', '#fef3c7'],
+                borderColor: '#f5f5f4',
+                borderWidth: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const challengesCtx = document.getElementById('challengesChart').getContext('2d');
+    new Chart(challengesCtx, {
+        type: 'polarArea',
+        data: {
+            labels: ['Digital Divide & Literacy', 'Infrastructure Cost', 'Data Security & Privacy', 'Legal & Policy Inertia', 'Resistance to Change'],
+            datasets: [{
+                label: 'Challenge Magnitude',
+                data: [8, 9, 8, 7, 6],
+                backgroundColor: [
+                    'rgba(239, 68, 68, 0.6)',
+                    'rgba(249, 115, 22, 0.6)',
+                    'rgba(245, 158, 11, 0.6)',
+                    'rgba(59, 130, 246, 0.6)',
+                    'rgba(107, 114, 128, 0.6)'
+                ],
+                 borderWidth: 2,
+                 borderColor: '#475569'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    pointLabels: {
+                        display: true,
+                        centerPointLabels: true,
+                        font: {
+                            size: 11
+                        }
+                    },
+                     ticks: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                     callbacks: {
+                        label: function(context) {
+                            return `${context.label}: Impact Score ${context.raw}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                });
+            }
+        });
+    }, { rootMargin: "-50% 0px -50% 0px" });
+
+    sections.forEach(section => {
+        observer.observe(section);
+    });
+
+    // Gemini API Integration
+    const topicInput = document.getElementById('topic-input');
+    const briefBtn = document.getElementById('brief-btn');
+    const speechBtn = document.getElementById('speech-btn');
+    const loadingDiv = document.getElementById('loading');
+    const outputDiv = document.getElementById('output');
+    const errorDiv = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+
+    const apiKey = "";
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    let retryCount = 0;
+    const maxRetries = 5;
+
+    async function generateDocument(docType) {
+        const topic = topicInput.value.trim();
+        if (!topic) {
+            outputDiv.textContent = 'Please enter a topic to get started!';
+            return;
+        }
+
+        outputDiv.textContent = '';
+        loadingDiv.classList.remove('hidden');
+        errorDiv.classList.add('hidden');
+
+        let systemPrompt = '';
+        if (docType === 'brief') {
+            systemPrompt = `Act as a senior government policy strategist. Draft a concise, one-page policy brief on the topic of "${topic}". The brief should be persuasive, structured with an introduction, key arguments, and a clear call to action.`;
+        } else if (docType === 'speech') {
+            systemPrompt = `Act as a government minister giving a public address. Write a short, inspiring speech (approximately 250 words) on the topic of "${topic}". The speech should be easy to understand, have an emotional appeal, and connect the topic to national progress and public good.`;
+        }
+
+        const payload = {
+            contents: [{ parts: [{ text: topic }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+        };
+
+        try {
+            const response = await fetchWithRetry(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error.message || `HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (generatedText) {
+                outputDiv.textContent = generatedText;
+            } else {
+                throw new Error("API returned no content.");
+            }
+        } catch (error) {
+            console.error('API call failed:', error);
+            errorText.textContent = `Content generation failed. Please try a different topic or try again later.`;
+            errorDiv.classList.remove('hidden');
+        } finally {
+            loadingDiv.classList.add('hidden');
+        }
+    }
+
+    async function fetchWithRetry(url, options) {
+        try {
+            const response = await fetch(url, options);
+            if (response.status === 429 && retryCount < maxRetries) {
+                retryCount++;
+                const delay = Math.pow(2, retryCount) * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return fetchWithRetry(url, options);
+            }
+            retryCount = 0;
+            return response;
+        } catch (error) {
+            if (retryCount < maxRetries) {
+                retryCount++;
+                const delay = Math.pow(2, retryCount) * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
+                return fetchWithRetry(url, options);
+            }
+            throw error;
+        }
+    }
+
+    briefBtn.addEventListener('click', () => generateDocument('brief'));
+    speechBtn.addEventListener('click', () => generateDocument('speech'));
+
+});
+</script>
+</body>
+</html>
